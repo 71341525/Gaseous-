@@ -1,48 +1,18 @@
-import logging
-import pyromod
-
-from motor.motor_asyncio import AsyncIOMotorClient as MongoCli
-from pyrogram import Client
-from pyrogram.enums import ParseMode
-
-import config
-
-logging.basicConfig(
-    format="[%(asctime)s - %(levelname)s] - %(name)s - %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-    handlers=[logging.FileHandler("log.txt"), logging.StreamHandler()],
-    level=logging.INFO,
-)
-logging.getLogger("pyrogram").setLevel(logging.ERROR)
-logging.getLogger("oldpyro").setLevel(logging.ERROR)
-logging.getLogger("telethon").setLevel(logging.ERROR)
-LOGGER = logging.getLogger(__name__)
-
-mongo = MongoCli(config.MONGO_DB_URI)
-db = mongo.ArStringTep
+import glob
+from os.path import basename, dirname, isfile
 
 
-class Anony(Client):
-    def __init__(self):
-        super().__init__(
-            name="Anoymous",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            lang_code="en",
-            bot_token=config.BOT_TOKEN,
-            in_memory=True,
-            parse_mode=ParseMode.HTML,
-        )
+def __list_all_modules():
+    mod_paths = glob.glob(dirname(__file__) + "/*.py")
 
-    async def start(self):
-        await super().start()
-        self.id = self.me.id
-        self.name = self.me.first_name + " " + (self.me.last_name or "")
-        self.username = self.me.username
-        self.mention = self.me.mention
+    all_modules = [
+        basename(f)[:-3]
+        for f in mod_paths
+        if isfile(f) and f.endswith(".py") and not f.endswith("__init__.py")
+    ]
 
-    async def stop(self):
-        await super().stop()
+    return all_modules
 
 
-Anony = Anony()
+ALL_MODULES = sorted(__list_all_modules())
+__all__ = ALL_MODULES + ["ALL_MODULES"]
